@@ -1,37 +1,29 @@
-
-// TODO: treure alguns as any perquè venen de problems de tipus l'API
-// TODO: adaptar a la darrera versió de l'API
-
 import {
     MiscService,
-    MyCoursesService,
-    MyListsService,
-    MyProblemsService,
-    MyProfileService,
+    UserCoursesService,
+    UserListsService,
+    UserProblemsService,
+    UserProfileService,
     OpenAPI,
     TablesService,
-    type TBasicAbstractProblemOut,
+    type TAbstractProblem,
     type TCompiler,
-    type TCourseOut,
+    type TCourse,
     type TLanguage,
-    type TListOut,
-    type TProfileOut,
+    type TList,
+    type TProfile,
 } from './client'
 
 
 type Dict<T> = { [_: string]: T }
 
 
-async function sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 
 class Compilers {
     private items: Dict<TCompiler> | undefined
 
     private async reload() {
-        const compilers = await TablesService.getAllCompilers() as Dict<TCompiler>
+        const compilers = await TablesService.getCompilers() as Dict<TCompiler>
         this.items = {}
         for (const compiler_id in compilers) {
             this.items[compiler_id] = compilers[compiler_id]
@@ -59,7 +51,7 @@ class Languages {
     private items: Dict<TLanguage> | undefined
 
     private async reload() {
-        const languages = await TablesService.getAllLanguages() as Dict<TLanguage>
+        const languages = await TablesService.getLanguages() as Dict<TLanguage>
         this.items = {}
         for (const language_id in languages) {
             this.items[language_id] = languages[language_id]
@@ -95,10 +87,10 @@ class Misc {
 
 
 class ProfileData {
-    private data: TProfileOut | undefined
+    private data: TProfile | undefined
 
     private async reload() {
-        this.data = await MyProfileService.getProfile()
+        this.data = await UserProfileService.getProfile()
     }
 
     async get() {
@@ -117,7 +109,7 @@ class Avatar {
     private data: Blob | undefined
 
     private async reload() {
-        this.data = await MyProfileService.getAvatar()
+        this.data = await UserProfileService.getAvatar()
     }
 
     async get() {
@@ -143,10 +135,10 @@ class Profile {
 
 class AvailableCourses {
 
-    private items: Dict<TCourseOut> | undefined
+    private items: Dict<TCourse> | undefined
 
     private async reload() {
-        this.items = await MyCoursesService.getAllAvailableCourses() as any
+        this.items = await UserCoursesService.getAvailableCourses() as any
     }
 
     async all() {
@@ -168,10 +160,10 @@ class AvailableCourses {
 
 class EnrolledCourses {
 
-    private items: Dict<TCourseOut> | undefined
+    private items: Dict<TCourse> | undefined
 
     private async reload() {
-        this.items = await MyCoursesService.getAllEnrolledCourses() as any
+        this.items = await UserCoursesService.getEnrolledCourses() as any
     }
 
     async all() {
@@ -202,10 +194,10 @@ class Courses {
 
 class Lists {
 
-    private items: Dict<TListOut> | undefined
+    private items: Dict<TList> | undefined
 
     private async reload() {
-        this.items = await MyListsService.getAllLists() as any
+        this.items = await UserListsService.getLists() as any
     }
 
     async all() {
@@ -219,7 +211,7 @@ class Lists {
         if (!this.items) await this.update()
         if (!this.items![list_id].items) {
             // aquí en pauek va fricar amb els estatus
-            this.items![list_id] = await MyListsService.getList({ listKey: list_id })
+            this.items![list_id] = await UserListsService.getList({ listKey: list_id })
         }
         return this.items![list_id]
     }
@@ -232,13 +224,10 @@ class Lists {
 
 
 class Problems {
-
-    // TODO: decidir com es for fer això
-
-    private items: Dict<TBasicAbstractProblemOut> | undefined
+    private items: Dict<TAbstractProblem> | undefined
 
     private async reload() {
-        this.items = await MyProblemsService.getAbstractProblems() as any
+        this.items = await UserProblemsService.getAbstractProblems() as any
     }
 
     async all() {
@@ -270,7 +259,7 @@ class Problems {
 }
 
 
-class JutgeObjectModel {
+export default class JutgeObjectModel {
 
     compilers: Compilers = new Compilers()
     languages: Languages = new Languages()
@@ -281,7 +270,7 @@ class JutgeObjectModel {
     problems: Problems = new Problems()
 
     constructor() {
-        OpenAPI.TOKEN = process.env.TOKEN
+        OpenAPI.TOKEN = process.env.JUTGE_TOKEN
     }
 
     async load() {
@@ -292,38 +281,3 @@ class JutgeObjectModel {
         // TODO: guardar a un JSON
     }
 }
-
-
-async function main() {
-    const jom = new JutgeObjectModel()
-
-    const compilers = await jom.compilers.all()
-    console.log(Object.keys(compilers))
-
-    const python = await jom.compilers.get('Python3')
-    console.log(python)
-
-    console.log(await jom.misc.fortune())
-    console.log(await jom.misc.time())
-
-    await jom.compilers.update()
-
-    // autoupdate compilers each second:
-    // jom.compilers.update(1000)
-
-    console.log(await jom.profile.data.get())
-
-    console.log(await jom.courses.enrolled.all())
-    console.log(await jom.courses.enrolled.get("Jutge:Haskell"))
-
-    console.log(await jom.lists.all())
-    console.log(await jom.lists.get("Jutge:Haskell"))
-    console.log(await jom.lists.get("Jutge:Haskell"))
-
-    console.log(await jom.problems.all())
-    console.log(await jom.problems.get("P99912"))
-    console.log(await jom.problems.get("P99912_en"))
-}
-
-
-await main()

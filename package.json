@@ -1,0 +1,16 @@
+{
+  "name": "jutge-client-ts",
+  "module": "jom.ts",
+  "type": "module",
+  "scripts": {
+    "generate-client": "openapi-ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@hey-api/openapi-ts": "^0.42.1",
+    "axios": "^1.7.7"
+  }
+}
