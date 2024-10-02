@@ -25,30 +25,34 @@ describe("Open Endpoints", () => {
         expect(pong).toBe("")
     })
 
-    test("compilers.all()", async () => {
-        const compilers = await jom.compilers.all()
-        expect(Object.keys(compilers).length).toBeGreaterThan(0)
-    })
+    test.each([
+        ["countries", jom.countries, "ES-Cat", "eng_name", "Spain - Catalunya"],
+        ["compilers", jom.compilers, "Python3", "extension", "py"],
+        ["languages", jom.languages, "ca", "own_name", "Català"],
+        ["drivers", jom.drivers, "std", "driver_id", "std"],
+        ["verdicts", jom.verdicts, "AC", "verdict_id", "AC"],
+        ["proglangs", jom.proglangs, "C", "proglang_id", "C"],
+    ])(
+        "%s",
+        async (
+            _name: string,
+            table: any,
+            key: string,
+            field: string,
+            value: string
+        ) => {
+            expect(table.hasCache()).toBe(false)
 
-    test("compilers.get()", async () => {
-        const compiler = await jom.compilers.get("Python3")
-        expect(compiler).toBeDefined()
-        expect(compiler.extension).toBe("py")
-    })
+            const result = await table.all()
+            expect(Object.keys(result).length).toBeGreaterThan(0)
+            expect(table.hasCache()).toBe(true)
 
-    test("languages.all()", async () => {
-        const languages = await jom.languages.all()
-        expect(Object.keys(languages).length).toBeGreaterThan(0)
-        for (const lang of ["ca", "en", "es", "fr", "de"]) {
-            expect(languages).toHaveProperty(lang)
+            const item = await table.get(key)
+            expect(item).toBeDefined()
+            expect(item).toHaveProperty(field)
+            expect(item![field]).toBe(value)
         }
-    })
-
-    test("languages.get()", async () => {
-        const language = await jom.languages.get("ca")
-        expect(language).toBeDefined()
-        expect(language.own_name).toBe("Català")
-    })
+    )
 })
 
 describe.skip("Authenticated Endpoints", () => {

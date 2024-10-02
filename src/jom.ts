@@ -12,65 +12,52 @@ import {
     type TLanguage,
     type TList,
     type TProfile,
+    CancelablePromise,
+    type TDriver,
+    type TVerdict,
+    type TProglang,
+    type TCountry,
 } from "./client"
 
 type Dict<T> = Record<string, T>
 
-class Compilers {
-    private items: Dict<TCompiler> | undefined
+type TableFetchFunc = () => CancelablePromise<Record<string, unknown>>
 
-    private async reload() {
-        const compilers =
-            (await TablesService.getCompilers()) as Dict<TCompiler>
-        this.items = {}
-        for (const compiler_id in compilers) {
-            this.items[compiler_id] = compilers[compiler_id]
+const TableClass = <T>(fetchFunc: TableFetchFunc) =>
+    class {
+        private items: Map<string, T> | undefined
+
+        private async reload() {
+            this.items = new Map(Object.entries((await fetchFunc()) as Dict<T>))
+        }
+
+        private async ensureItems() {
+            if (!this.items) {
+                await this.reload()
+            }
+        }
+
+        hasCache() {
+            return this.items !== undefined
+        }
+
+        async all() {
+            await this.ensureItems()
+            return Object.fromEntries(this.items!)
+        }
+
+        async get(compiler_id: string) {
+            await this.ensureItems()
+            return this.items!.get(compiler_id)
         }
     }
 
-    async all() {
-        if (!this.items) await this.update()
-        return this.items!
-    }
-
-    async get(compiler_id: string) {
-        if (!this.items) await this.update()
-        return this.items![compiler_id]
-    }
-
-    async update(ms?: number) {
-        await this.reload()
-        if (ms) setInterval(() => this.reload(), ms)
-    }
-}
-
-class Languages {
-    private items: Dict<TLanguage> | undefined
-
-    private async reload() {
-        const languages =
-            (await TablesService.getLanguages()) as Dict<TLanguage>
-        this.items = {}
-        for (const language_id in languages) {
-            this.items[language_id] = languages[language_id]
-        }
-    }
-
-    async all() {
-        if (!this.items) await this.update()
-        return this.items!
-    }
-
-    async get(language_id: string) {
-        if (!this.items) await this.update()
-        return this.items![language_id]
-    }
-
-    async update(ms?: number) {
-        await this.reload()
-        if (ms) setInterval(() => this.reload(), ms)
-    }
-}
+class Languages extends TableClass<TLanguage>(TablesService.getLanguages) {}
+class Countries extends TableClass<TCountry>(TablesService.getCountries) {}
+class Compilers extends TableClass<TCompiler>(TablesService.getCompilers) {}
+class Drivers extends TableClass<TDriver>(TablesService.getDrivers) {}
+class Verdicts extends TableClass<TVerdict>(TablesService.getVerdicts) {}
+class ProgLangs extends TableClass<TProglang>(TablesService.getProglangs) {}
 
 class Misc {
     async fortune() {
@@ -247,9 +234,15 @@ class Problems {
 }
 
 export default class JutgeObjectModel {
-    compilers: Compilers = new Compilers()
-    languages: Languages = new Languages()
     misc: Misc = new Misc()
+
+    countries: Countries = new Countries()
+    languages: Languages = new Languages()
+    compilers: Compilers = new Compilers()
+    drivers: Drivers = new Drivers()
+    verdicts: Verdicts = new Verdicts()
+    proglangs: ProgLangs = new ProgLangs()
+
     profile: Profile = new Profile()
     courses: Courses = new Courses()
     lists: Lists = new Lists()
