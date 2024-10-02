@@ -1,9 +1,9 @@
 import {
     MiscService,
-    UserCoursesService,
-    UserListsService,
-    UserProblemsService,
-    UserProfileService,
+    StudentCoursesService,
+    StudentListsService,
+    StudentProblemsService,
+    StudentProfileService,
     OpenAPI,
     TablesService,
     type TAbstractProblem,
@@ -25,13 +25,13 @@ type TableFetchFunc = () => CancelablePromise<Record<string, unknown>>
 
 const TableClass = <T>(fetchFunc: TableFetchFunc) =>
     class {
-        private items: Map<string, T> | undefined
+        items: Map<string, T> | undefined
 
-        private async reload() {
+        async reload() {
             this.items = new Map(Object.entries((await fetchFunc()) as Dict<T>))
         }
 
-        private async ensureItems() {
+        async ensureItems() {
             if (!this.items) {
                 await this.reload()
             }
@@ -77,7 +77,7 @@ class ProfileData {
     private data: TProfile | undefined
 
     private async reload() {
-        this.data = await UserProfileService.getProfile()
+        this.data = await StudentProfileService.getProfile()
     }
 
     async get() {
@@ -95,7 +95,7 @@ class Avatar {
     private data: Blob | undefined
 
     private async reload() {
-        this.data = await UserProfileService.getAvatar()
+        this.data = await StudentProfileService.getAvatar()
     }
 
     async get() {
@@ -119,7 +119,7 @@ class AvailableCourses {
     private items: Dict<TCourse> | undefined
 
     private async reload() {
-        this.items = (await UserCoursesService.getAvailableCourses()) as any
+        this.items = (await StudentCoursesService.getAvailableCourses()) as any
     }
 
     async all() {
@@ -142,7 +142,7 @@ class EnrolledCourses {
     private items: Dict<TCourse> | undefined
 
     private async reload() {
-        this.items = (await UserCoursesService.getEnrolledCourses()) as any
+        this.items = (await StudentCoursesService.getEnrolledCourses()) as any
     }
 
     async all() {
@@ -171,7 +171,7 @@ class Lists {
     private items: Dict<TList> | undefined
 
     private async reload() {
-        this.items = (await UserListsService.getLists()) as any
+        this.items = (await StudentListsService.getLists()) as any
     }
 
     async all() {
@@ -185,7 +185,7 @@ class Lists {
         if (!this.items) await this.update()
         if (!this.items![list_id].items) {
             // aquí en pauek va fricar amb els estatus
-            this.items![list_id] = await UserListsService.getList({
+            this.items![list_id] = await StudentListsService.getList({
                 listKey: list_id,
             })
         }
@@ -202,7 +202,7 @@ class Problems {
     private items: Dict<TAbstractProblem> | undefined
 
     private async reload() {
-        this.items = (await UserProblemsService.getAbstractProblems()) as any
+        this.items = (await StudentProblemsService.getAbstractProblems()) as any
     }
 
     async all() {
@@ -233,7 +233,7 @@ class Problems {
     }
 }
 
-export default class JutgeObjectModel {
+export class JutgeObjectModel {
     misc: Misc = new Misc()
 
     countries: Countries = new Countries()
