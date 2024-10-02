@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, test } from "bun:test"
 import { OpenAPI } from "./client"
-import JOM from "./jom"
+import { JutgeObjectModel as JOM } from "./jom"
 
 const jom = new JOM()
 

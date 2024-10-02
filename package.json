@@ -1,9 +1,12 @@
 {
-    "name": "jutge-client-ts",
-    "module": "jom.ts",
+    "name": "@jutge.org/client-ts",
+    "version": "0.0.1",
     "type": "module",
+    "main": "dist/src/jom.js",
+    "module": "dist/src/jom.js",
     "scripts": {
-        "generate-client": "openapi-ts"
+        "generate-client": "openapi-ts",
+        "build": "rm -rf dist && tsc"
     },
     "devDependencies": {
         "@types/bun": "latest",
@@ -15,5 +18,8 @@
     "prettier": {
         "semi": false,
         "tabWidth": 4
+    },
+    "publishConfig": {
+        "access": "public"
     }
 }
