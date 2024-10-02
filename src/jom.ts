@@ -12,18 +12,16 @@ import {
     type TLanguage,
     type TList,
     type TProfile,
-} from './client'
+} from "./client"
 
-
-type Dict<T> = { [_: string]: T }
-
-
+type Dict<T> = Record<string, T>
 
 class Compilers {
     private items: Dict<TCompiler> | undefined
 
     private async reload() {
-        const compilers = await TablesService.getCompilers() as Dict<TCompiler>
+        const compilers =
+            (await TablesService.getCompilers()) as Dict<TCompiler>
         this.items = {}
         for (const compiler_id in compilers) {
             this.items[compiler_id] = compilers[compiler_id]
@@ -46,12 +44,12 @@ class Compilers {
     }
 }
 
-
 class Languages {
     private items: Dict<TLanguage> | undefined
 
     private async reload() {
-        const languages = await TablesService.getLanguages() as Dict<TLanguage>
+        const languages =
+            (await TablesService.getLanguages()) as Dict<TLanguage>
         this.items = {}
         for (const language_id in languages) {
             this.items[language_id] = languages[language_id]
@@ -74,7 +72,6 @@ class Languages {
     }
 }
 
-
 class Misc {
     async fortune() {
         return (await MiscService.getFortune()).message
@@ -83,8 +80,11 @@ class Misc {
     async time() {
         return await MiscService.getTime()
     }
-}
 
+    async ping() {
+        return await MiscService.ping()
+    }
+}
 
 class ProfileData {
     private data: TProfile | undefined
@@ -104,7 +104,6 @@ class ProfileData {
     }
 }
 
-
 class Avatar {
     private data: Blob | undefined
 
@@ -123,22 +122,17 @@ class Avatar {
     }
 }
 
-
 class Profile {
-
     data: ProfileData = new ProfileData()
 
     avatar: Avatar = new Avatar()
-
 }
-
 
 class AvailableCourses {
-
     private items: Dict<TCourse> | undefined
 
     private async reload() {
-        this.items = await UserCoursesService.getAvailableCourses() as any
+        this.items = (await UserCoursesService.getAvailableCourses()) as any
     }
 
     async all() {
@@ -156,14 +150,12 @@ class AvailableCourses {
         if (ms) setInterval(() => this.update(), ms)
     }
 }
-
 
 class EnrolledCourses {
-
     private items: Dict<TCourse> | undefined
 
     private async reload() {
-        this.items = await UserCoursesService.getEnrolledCourses() as any
+        this.items = (await UserCoursesService.getEnrolledCourses()) as any
     }
 
     async all() {
@@ -182,22 +174,17 @@ class EnrolledCourses {
     }
 }
 
-
 class Courses {
-
     available: AvailableCourses = new AvailableCourses()
 
     enrolled: EnrolledCourses = new EnrolledCourses()
-
 }
 
-
 class Lists {
-
     private items: Dict<TList> | undefined
 
     private async reload() {
-        this.items = await UserListsService.getLists() as any
+        this.items = (await UserListsService.getLists()) as any
     }
 
     async all() {
@@ -211,7 +198,9 @@ class Lists {
         if (!this.items) await this.update()
         if (!this.items![list_id].items) {
             // aquí en pauek va fricar amb els estatus
-            this.items![list_id] = await UserListsService.getList({ listKey: list_id })
+            this.items![list_id] = await UserListsService.getList({
+                listKey: list_id,
+            })
         }
         return this.items![list_id]
     }
@@ -222,12 +211,11 @@ class Lists {
     }
 }
 
-
 class Problems {
     private items: Dict<TAbstractProblem> | undefined
 
     private async reload() {
-        this.items = await UserProblemsService.getAbstractProblems() as any
+        this.items = (await UserProblemsService.getAbstractProblems()) as any
     }
 
     async all() {
@@ -239,8 +227,8 @@ class Problems {
         if (!this.items) await this.update()
         if (!this.items) return undefined
 
-        if (problem_key.includes('_')) {
-            const problem_nm = problem_key.split('_')[0]
+        if (problem_key.includes("_")) {
+            const problem_nm = problem_key.split("_")[0]
             for (const problem of this.items[problem_nm].problems) {
                 if (problem.problem_id == problem_key) {
                     return problem
@@ -258,9 +246,7 @@ class Problems {
     }
 }
 
-
 export default class JutgeObjectModel {
-
     compilers: Compilers = new Compilers()
     languages: Languages = new Languages()
     misc: Misc = new Misc()
