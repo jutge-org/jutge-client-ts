@@ -17,10 +17,10 @@ describe("Open Endpoints", () => {
         expect(time).toHaveProperty("date")
     })
 
+    // FIXME(pauek): Seems like @hey-api/openapi-ts returns "undefined" when it should return an empty string?
+    // Do we have to change the API? I hope not...
+    // (it is skipped for now)
     test.skip("misc.ping()", async () => {
-        // FIXME(pauek): Seems like @hey-api/openapi-ts returns "undefined" when it should return an empty string?
-        // Do we have to change the API? I hope not...
-        //
         const pong = await jom.misc.ping()
         expect(pong).toBe("")
     })
