@@ -14,10 +14,13 @@
     },
     "devDependencies": {
         "@types/bun": "latest",
+        "@types/conf": "^3.0.0",
         "typescript": "^5.0.0"
     },
     "dependencies": {
-        "@hey-api/openapi-ts": "^0.42.1"
+        "@hey-api/openapi-ts": "^0.42.1",
+        "conf": "^13.0.1",
+        "dayjs": "^1.11.13"
     },
     "prettier": {
         "semi": false,

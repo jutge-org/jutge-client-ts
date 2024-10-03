@@ -1,3 +1,4 @@
+import { Auth } from "./auth"
 import { OpenAPI } from "./client"
 
 import { Courses } from "./courses"
@@ -16,6 +17,8 @@ import {
 
 export class JutgeObjectModel {
     misc: Misc = new Misc()
+
+    auth: Auth = new Auth()
 
     countries: Countries = new Countries()
     languages: Languages = new Languages()
