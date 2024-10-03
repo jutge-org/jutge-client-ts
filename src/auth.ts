@@ -10,7 +10,7 @@ export class Auth {
     _ensureCredentials() {
         const maybeCredentials = config.get("credentials")
         if (!maybeCredentials) {
-            return null
+            throw new Error("Not logged in.")
         }
         const credentials = maybeCredentials as Credentials
         OpenAPI.TOKEN = credentials.token
@@ -37,11 +37,8 @@ export class Auth {
     }
 
     async logout() {
-        const credentials = this._ensureCredentials()
-        if (!credentials) {
-            return { success: false, error: "Not logged in." }
-        }
         try {
+            this._ensureCredentials()
             await AuthService.logout()
             config.delete("credentials")
             return { success: true }
@@ -51,15 +48,16 @@ export class Auth {
     }
 
     async check() {
-        const credentials = this._ensureCredentials()
-        if (!credentials) {
-            return { success: false, error: "Not logged in." }
+        try {
+            const credentials = this._ensureCredentials()
+            const result = await AuthService.check()
+            if (!result || !result.success) {
+                return { success: false, error: "Not logged in." }
+            }
+            const expiresIn = dayjs(credentials.expiration).from(dayjs(), true)
+            return { success: true, credentials, expiresIn }
+        } catch (error: any) {
+            return { success: false, error: error.message }
         }
-        const result = await AuthService.check()
-        if (!result || !result.success) {
-            return { success: false, error: "Not logged in." }
-        }
-        const expiresIn = dayjs(credentials.expiration).from(dayjs(), true)
-        return { success: true, credentials, expiresIn }
     }
 }
