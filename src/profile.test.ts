@@ -2,7 +2,7 @@ import { test, expect } from "bun:test"
 import { JutgeObjectModel as JOM } from "./jom"
 import { describeWithToken } from "./test-utils"
 
-describeWithToken("Authenticated Endpoints", () => {
+describeWithToken("Profile", () => {
     const jom = new JOM()
 
     test("profile.data.get()", async () => {

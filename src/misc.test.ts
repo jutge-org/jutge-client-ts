@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test"
 import { JutgeObjectModel as JOM } from "./jom"
 
-describe("Open Endpoints", () => {
+describe("Misc", () => {
     const jom = new JOM()
 
     test("misc.hello()", async () => {
