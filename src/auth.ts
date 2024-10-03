@@ -8,11 +8,11 @@ type Credentials = Awaited<ReturnType<typeof AuthService.login>>
 
 export class Auth {
     _ensureCredentials() {
-        const maybeCredentials = config.get("credentials")
-        if (!maybeCredentials) {
+        const savedCredentials = config.get("credentials")
+        if (!savedCredentials) {
             throw new Error("Not logged in.")
         }
-        const credentials = maybeCredentials as Credentials
+        const credentials = savedCredentials as Credentials
         OpenAPI.TOKEN = credentials.token
         return credentials
     }

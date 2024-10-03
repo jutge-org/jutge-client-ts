@@ -1,5 +1,6 @@
 import { describe, expect, mock, test } from "bun:test"
 import { JutgeObjectModel as JOM } from "./jom"
+import dayjs from "dayjs"
 
 describe("Auth", () => {
     const jom = new JOM()
@@ -55,7 +56,7 @@ describe("Auth", () => {
                     return {
                         token: "Fake token",
                         user_uid: "Fake user_uid",
-                        expiration: "2025-12-31T23:59:59Z",
+                        expiration: dayjs(new Date()).add(5, "hour"),
                     }
                 },
             },
@@ -65,6 +66,7 @@ describe("Auth", () => {
         expect(result.success).toBe(true)
         expect(result.credentials.token).toBe("Fake token")
         expect(result.credentials.user_uid).toBe("Fake user_uid")
+        expect(result.expiresIn).toBe("5 hours")
     })
 
     test("Check not logged in", async () => {
