@@ -97,8 +97,8 @@ describe("Auth", () => {
         expect(result.success).toBe(true)
         expect(result.error).toBeUndefined()
         expect(deleteMock).toHaveBeenCalledTimes(1)
-        expect(deleteMock.mock.calls[0][0]).toBe("credentials")
         expect(logoutMock).toHaveBeenCalledTimes(1)
+        expect(deleteMock.mock.calls[0][0]).toBe("credentials")
     })
 
     test("Failed logout (API call error)", async () => {
@@ -117,11 +117,7 @@ describe("Auth", () => {
 
     test("Failed logout (Not logged in)", async () => {
         mock.module("./config", () => ({
-            config: {
-                get() {
-                    return null
-                },
-            },
+            config: { get: () => null },
         }))
 
         const result = await jom.auth.logout()
