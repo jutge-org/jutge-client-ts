@@ -1,6 +1,10 @@
 import { MiscService } from "./client"
 
 export class Misc {
+    async hello() {
+        return await MiscService.hello()
+    }
+
     async fortune() {
         return (await MiscService.getFortune()).message
     }
@@ -11,5 +15,9 @@ export class Misc {
 
     async ping() {
         return await MiscService.ping()
+    }
+
+    async homepageStats() {
+        return await MiscService.getHomepageStats()
     }
 }
