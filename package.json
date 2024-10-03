@@ -1,11 +1,15 @@
 {
     "name": "@jutge.org/client-ts",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "module",
     "main": "dist/src/jom.js",
     "module": "dist/src/jom.js",
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "generate-client": "openapi-ts",
+        "prebuild": "rm -rf src/client && bun generate-client",
         "build": "rm -rf dist && tsc"
     },
     "devDependencies": {
