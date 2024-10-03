@@ -4,6 +4,11 @@ import { JutgeObjectModel as JOM } from "./jom"
 describe("Open Endpoints", () => {
     const jom = new JOM()
 
+    test("misc.hello()", async () => {
+        const hello = await jom.misc.hello()
+        expect(hello.message).toBe("Hello World!")
+    })
+
     test("misc.fortune()", async () => {
         const fortune = await jom.misc.fortune()
         expect(typeof fortune).toBe("string")
@@ -22,5 +27,12 @@ describe("Open Endpoints", () => {
     test.skip("misc.ping()", async () => {
         const pong = await jom.misc.ping()
         expect(pong).toBe("")
+    })
+
+    test("misc.homepageStats()", async () => {
+        const stats = await jom.misc.homepageStats()
+        expect(stats.problems).toBeNumber()
+        expect(stats.submissions).toBeNumber()
+        expect(stats.users).toBeNumber()
     })
 })
