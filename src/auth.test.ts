@@ -1,35 +1,129 @@
-import { describe, expect, test } from "bun:test"
+import { describe, expect, mock, test } from "bun:test"
 import { JutgeObjectModel as JOM } from "./jom"
 
 describe("Auth", () => {
     const jom = new JOM()
 
-    test("auth.login()", async () => {
-        const { TEST_USER, TEST_PASSWORD } = process.env
-        expect(TEST_USER).toBeDefined()
-        expect(TEST_PASSWORD).toBeDefined()
+    test("Login with bad user/password", async () => {
+        mock.module("./client", () => ({
+            AuthService: {
+                async login(_user: string, _password: string) {
+                    throw new Error("Unauthorized mock")
+                },
+            },
+        }))
 
-        const badLogin = await jom.auth.login("a@a.com", "1234")
-        expect(badLogin.success).toBe(false)
-        expect(badLogin.error).toBeDefined()
+        const result = await jom.auth.login("a@a.com", "1234")
+        expect(result.success).toBe(false)
+        expect(result.error).toBeDefined()
+        expect(result.error).toBe("Unauthorized mock")
+    })
 
-        const goodLogin = await jom.auth.login(TEST_USER!, TEST_PASSWORD!)
-        expect(goodLogin.success).toBe(true)
-        expect(goodLogin.error).toBeUndefined()
+    test("Login with correct user/password", async () => {
+        const token = crypto.randomUUID().replace(/-/g, "")
+        const user_uid = crypto.randomUUID().replace(/-/g, "")
+        mock.module("./client", () => ({
+            AuthService: {
+                async login(_user: string, _password: string) {
+                    return {
+                        token,
+                        expiration: "2025-12-31T23:59:59Z",
+                        user_uid,
+                    }
+                },
+            },
+        }))
 
-        const goodCheck = await jom.auth.check()
-        expect(goodCheck.success).toBe(true)
-        expect(goodCheck.credentials).toBeDefined()
+        const result = await jom.auth.login("fake@user.com", "123456")
+        expect(result.success).toBe(true)
+        expect(result.error).toBeUndefined()
+        expect(jom.auth.credentials.token).toBe(token)
+        expect(jom.auth.credentials.user_uid).toBe(user_uid)
+    })
 
-        const goodLogout = await jom.auth.logout()
-        expect(goodLogout.success).toBe(true)
+    test("Check with credentials", async () => {
+        mock.module("./client", () => ({
+            AuthService: {
+                async check() {
+                    return { success: true }
+                },
+            },
+        }))
+        mock.module("./config", () => ({
+            config: {
+                get(x: string) {
+                    return {
+                        token: "Fake token",
+                        user_uid: "Fake user_uid",
+                        expiration: "2025-12-31T23:59:59Z",
+                    }
+                },
+            },
+        }))
 
-        const badCheck = await jom.auth.check()
-        expect(badCheck.success).toBe(false)
-        expect(badCheck.error).toBe("Not logged in.")
+        const result = await jom.auth.check()
+        expect(result.success).toBe(true)
+        expect(result.credentials.token).toBe("Fake token")
+        expect(result.credentials.user_uid).toBe("Fake user_uid")
+    })
 
-        const badLogout = await jom.auth.logout()
-        expect(badLogout.success).toBe(false)
-        expect(badLogout.error).toBe("Not logged in.")
+    test("Check not logged in", async () => {
+        mock.module("./config", () => ({
+            config: {
+                get() {
+                    return null
+                },
+            },
+        }))
+
+        const result = await jom.auth.check()
+        expect(result.success).toBe(false)
+        expect(result.error).toBe("Not logged in.")
+    })
+
+    test("Logout", async () => {
+        const deleteMock = mock((key) => key)
+        const logoutMock = mock(async () => {})
+        mock.module("./config", () => ({
+            config: { delete: deleteMock, get: () => "Fake credentials" },
+        }))
+        mock.module("./client", () => ({
+            AuthService: { logout: logoutMock },
+        }))
+
+        const result = await jom.auth.logout()
+        expect(result.success).toBe(true)
+        expect(result.error).toBeUndefined()
+        expect(deleteMock).toHaveBeenCalledTimes(1)
+        expect(deleteMock.mock.calls[0][0]).toBe("credentials")
+        expect(logoutMock).toHaveBeenCalledTimes(1)
+    })
+
+    test("Failed logout (API call error)", async () => {
+        mock.module("./client", () => ({
+            AuthService: {
+                logout: () => {
+                    throw new Error("API error")
+                },
+            },
+        }))
+
+        const result = await jom.auth.logout()
+        expect(result.success).toBe(false)
+        expect(result.error).toBe("API error")
+    })
+
+    test("Failed logout (Not logged in)", async () => {
+        mock.module("./config", () => ({
+            config: {
+                get() {
+                    return null
+                },
+            },
+        }))
+
+        const result = await jom.auth.logout()
+        expect(result.success).toBe(false)
+        expect(result.error).toBe("Not logged in.")
     })
 })

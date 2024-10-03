@@ -17,15 +17,22 @@ export class Auth {
         return credentials
     }
 
-    async login(email: string, password: string) {
+    get credentials() {
+        return this._ensureCredentials()
+    }
+
+    async login(
+        email: string,
+        password: string
+    ): Promise<{ success: boolean; error?: string }> {
         try {
             const credentials = await AuthService.login({
                 requestBody: { email, password },
             })
             config.set("credentials", credentials)
             return { success: true }
-        } catch (error) {
-            return { success: false, error }
+        } catch (error: any) {
+            return { success: false, error: error.message }
         }
     }
 
@@ -34,9 +41,13 @@ export class Auth {
         if (!credentials) {
             return { success: false, error: "Not logged in." }
         }
-        await AuthService.logout()
-        config.delete("credentials")
-        return { success: true }
+        try {
+            await AuthService.logout()
+            config.delete("credentials")
+            return { success: true }
+        } catch (error: any) {
+            return { success: false, error: error.message }
+        }
     }
 
     async check() {
