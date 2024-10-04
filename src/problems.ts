@@ -22,9 +22,9 @@ export class Problems {
             if (!abstractProblem) {
                 return undefined
             }
-            for (const problem of abstractProblem.problems) {
-                if (problem.problem_id === problem_key) {
-                    return problem
+            for (const problem_id in abstractProblem.problems) {
+                if (problem_id === problem_key) {
+                    return abstractProblem.problems[problem_id]
                 }
             }
             return undefined

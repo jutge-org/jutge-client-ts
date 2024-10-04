@@ -21,10 +21,7 @@ describe("Misc", () => {
         expect(time).toHaveProperty("date")
     })
 
-    // FIXME(pauek): Seems like @hey-api/openapi-ts returns "undefined" when it should return an empty string?
-    // Do we have to change the API? I hope not...
-    // (it is skipped for now)
-    test.skip("misc.ping()", async () => {
+    test("misc.ping()", async () => {
         const pong = await jom.misc.ping()
         expect(pong).toBe("")
     })
