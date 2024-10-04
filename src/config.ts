@@ -38,7 +38,7 @@ const configSchema = {
 }
 
 export const config = new Conf({
-    projectName: "@jutge.org/cli",
+    projectName: "@jutge.org/client",
     projectSuffix: "",
     schema: configSchema,
 })
