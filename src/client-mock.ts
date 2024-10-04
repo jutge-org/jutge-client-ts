@@ -24,7 +24,7 @@ mock.module("./client", () => ({
         getFortune: async () => ({ message: "You will be successful" }),
         getTime: async () => ({ time: "2021-10-10T10:10:10Z", date: "2021-10-10" }),
         getHomepageStats: async () => ({ users: 100, problems: 1000, submissions: 234234 }),
-        ping: async () => "",
+        ping: async () => "pong",
     },
     StudentProblemsService: {
         getAbstractProblems: async () => ({ "X12345": [] }),

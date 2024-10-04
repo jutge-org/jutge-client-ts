@@ -23,7 +23,7 @@ describe("Misc", () => {
 
     test("misc.ping()", async () => {
         const pong = await jom.misc.ping()
-        expect(pong).toBe("")
+        expect(pong).toBe("pong")
     })
 
     test("misc.homepageStats()", async () => {
