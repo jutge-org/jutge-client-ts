@@ -1,6 +1,6 @@
 {
     "name": "@jutge.org/client-ts",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "type": "module",
     "main": "dist/src/jom.js",
     "module": "dist/src/jom.js",
