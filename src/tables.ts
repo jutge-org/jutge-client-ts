@@ -1,6 +1,5 @@
-import {
+import type {
     CancelablePromise,
-    TablesService,
     TCompiler,
     TCountry,
     TDriver,
@@ -9,15 +8,34 @@ import {
     TVerdict,
 } from "./client"
 
-type TableFetchFunc = () => CancelablePromise<Record<string, unknown>>
+import { TablesService } from "./client"
 
-const TableClass = <T>(fetchFunc: TableFetchFunc) =>
+type TableFetchFunc = () => CancelablePromise<Record<string, unknown>>
+type TableType =
+    | "languages"
+    | "countries"
+    | "compilers"
+    | "drivers"
+    | "verdicts"
+    | "proglangs"
+
+const fetchFunc: Record<TableType, TableFetchFunc> = {
+    languages: TablesService.getLanguages,
+    countries: TablesService.getCountries,
+    compilers: TablesService.getCompilers,
+    drivers: TablesService.getDrivers,
+    verdicts: TablesService.getVerdicts,
+    proglangs: TablesService.getProglangs,
+}
+
+const TableClass = <T>(funcName: TableType) =>
     class {
         items: Map<string, T> | undefined
 
         async reload() {
+            const func = fetchFunc[funcName]
             this.items = new Map(
-                Object.entries((await fetchFunc()) as Record<string, T>)
+                Object.entries((await func()) as Record<string, T>)
             )
         }
 
@@ -42,17 +60,9 @@ const TableClass = <T>(fetchFunc: TableFetchFunc) =>
         }
     }
 
-export class Languages extends TableClass<TLanguage>(
-    TablesService.getLanguages
-) {}
-export class Countries extends TableClass<TCountry>(
-    TablesService.getCountries
-) {}
-export class Compilers extends TableClass<TCompiler>(
-    TablesService.getCompilers
-) {}
-export class Drivers extends TableClass<TDriver>(TablesService.getDrivers) {}
-export class Verdicts extends TableClass<TVerdict>(TablesService.getVerdicts) {}
-export class ProgLangs extends TableClass<TProglang>(
-    TablesService.getProglangs
-) {}
+export class Languages extends TableClass<TLanguage>("languages") {}
+export class Countries extends TableClass<TCountry>("countries") {}
+export class Compilers extends TableClass<TCompiler>("compilers") {}
+export class Drivers extends TableClass<TDriver>("drivers") {}
+export class Verdicts extends TableClass<TVerdict>("verdicts") {}
+export class ProgLangs extends TableClass<TProglang>("proglangs") {}
