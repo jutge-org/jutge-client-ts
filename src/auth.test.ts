@@ -40,6 +40,8 @@ describe("Auth", () => {
         expect(result.error).toBeUndefined()
         expect(jom.auth.credentials.token).toBe(token)
         expect(jom.auth.credentials.user_uid).toBe(user_uid)
+        // TODO(pauek): Also read the config file at ~/.config/@jutge.org/config.json 
+        // and check that the values are written there.
     })
 
     test("Check with credentials", async () => {
